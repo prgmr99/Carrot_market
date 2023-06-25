@@ -8,6 +8,18 @@ import sqlite3
 con = sqlite3.connect('db.db',check_same_thread=False) 
 cur = con.cursor()
 
+cur.execute(f"""
+            CREATE table IF NOT EXISTS items (
+                id integer primary key,
+                title text not null,
+                image blob,
+                price integer not null,
+                description text,
+                place text not null,
+                insertAt integer not null
+            )
+            """)
+
 app = FastAPI()
 
 @app.post('/items')
