@@ -26,7 +26,7 @@
 </header>
 
 <main>
-  <a class="wrBtn" href="write.html">글쓰기</a>
+  <a class="wrBtn" href="#/write">글쓰기</a>
 </main>
 
 <footer>
