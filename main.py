@@ -1,11 +1,17 @@
-from fastapi import FastAPI,UploadFile,Form,Response
+from fastapi import FastAPI,UploadFile,Form,Response,Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.staticfiles import StaticFiles
 from fastapi_login import LoginManager
 from fastapi_login.exceptions import InvalidCredentialsException
 from typing import Annotated
+from fastapi import FastAPI
+from pydantic import BaseModel
 import sqlite3
+
+
+class Chat(BaseModel):
+    chat1:str
 
 con = sqlite3.connect('db.db',check_same_thread=False) 
 cur = con.cursor()
@@ -24,15 +30,22 @@ cur.execute(f"""
 
 app = FastAPI()
 
+# secret 정보는 우리가 access_token을 어떻게 인코딩할 것인지 정하는 것.
+# secret 키가 노출되면 JWT는 다른 유저로부터 언제든지 해석될 수 있음.
 SECRET = "super-coding"
+# 토큰이 로그인에서 발급되도록 해보자.
 manager = LoginManager(SECRET, '/login')
 
 @manager.user_loader()
-def query_user(id):
+def query_user(data):
+    WHERE_STATEMENTS = f'''id="{data}"'''
+    if type(data) == dict:
+        WHERE_STATEMENTS = f'''id="{data['id']}"'''
+        
     con.row_factory = sqlite3.Row
     cur =  con.cursor()
     user = cur.execute(f"""
-                       SELECT * FROM users WHERE id='{id}'
+                       SELECT * FROM users WHERE {WHERE_STATEMENTS}
                        """).fetchone()
     return user
 
@@ -47,11 +60,13 @@ def login(id:Annotated[str,Form()],
     # 꼭 200을 return하지 않아도 동작함.
     # access token을 전달해주면 됨.
     access_token = manager.create_access_token(data={
-        'id': user['id'],
-        'name': user['name'],
-        'email': user['email'],
+        'sub': {
+            'id': user['id'],
+            'name': user['name'],
+            'email': user['email']
+        }
     })
-    return {'access_token': access_token} 
+    return {'access_token': access_token}
 
 @app.post('/signup')
 def signup(id:Annotated[str,Form()], 
@@ -77,7 +92,7 @@ async def create_item(image:UploadFile, title:Annotated[str,Form()], price:Annot
     return '200'
 
 @app.get('/items')
-async def get_items():
+async def get_items(user=Depends(manager)):
     # 컬럼명도 같이 넣어줘야 한다.
     con.row_factory = sqlite3.Row
     cur =  con.cursor()
@@ -94,6 +109,16 @@ async def get_image(item_id):
                               """).fetchone()[0]
     return Response(content = bytes.fromhex(image_bytes), media_type='image/*') 
 
+#chats = []
+
+'''@app.post('/chat')
+def updateChat(chat:Chat):
+    chats.append(chat.chat1)
+    return 0
+
+@app.get('/chat')
+def getChat():
+    return chats'''
 
 
 app.mount("/", StaticFiles(directory="frontend", html=True),name="frontend")

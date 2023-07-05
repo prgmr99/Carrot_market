@@ -24,3 +24,8 @@ footer {
   font-size: 10px;
   margin-top: 10px;
 }
+
+#footer-chat {
+  text-decoration: none;
+  color: black;
+}

@@ -55,10 +55,24 @@ const renderData = (data) => {
 
 // server로부터 데이터 받아오기
 const fetchList = async () => {
-  const res = await fetch("/items");
+  const accessToken = window.localStorage.getItem("token");
+  const res = await fetch("/items", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  if (res.status === 401) {
+    alert("로그인이 필요합니다.");
+    window.location.pathname = "/login.html";
+    return;
+  }
   const json = await res.json();
   renderData(json);
   console.log(json);
+};
+
+const handleChat = () => {
+  window.location.pathname = "/chat.html";
 };
 
 fetchList();
