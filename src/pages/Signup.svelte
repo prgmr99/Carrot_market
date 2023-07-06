@@ -1,3 +1,7 @@
+<script>
+  import Footer from "../components/Footer.svelte";
+</script>
+
 <form id="signup-form" action="/signup" method="POST">
   <div>회원가입</div>
   <div>
