@@ -3,6 +3,10 @@
   const movetoHome = () => {
     window.location.hash = "/";
   };
+
+  const movetoMyPage = () => {
+    window.location.hash = "/my";
+  };
 </script>
 
 <footer>
@@ -29,9 +33,13 @@
         <span class="footer-icon__text">대화 목록</span>
       </a>
     </div>
-    <div class="footer-icons">
-      <img src="assets/svg/user.svg" alt="" />
+    <button class="footer-icons" on:click={movetoMyPage}>
+      {#if location === "my"}
+        <img src="assets/svg/user2.svg" alt="" />
+      {:else}
+        <img src="assets/svg/user.svg" alt="" />
+      {/if}
       <span class="footer-icon__text">내 정보</span>
-    </div>
+    </button>
   </div>
 </footer>

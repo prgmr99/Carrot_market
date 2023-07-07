@@ -1,6 +1,6 @@
 <script>
   import { getDatabase, ref, set, push } from "firebase/database";
-  import Footer from "../components/Footer.svelte";
+  import Nav from "../components/Nav.svelte";
   import {
     getStorage,
     ref as refImage,
@@ -76,7 +76,7 @@
   </div>
 </form>
 
-<Footer location="write" />
+<Nav location="write" />
 
 <style>
   .write-button {
